@@ -15,6 +15,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
         
+        print(f"WebSocket connection attempt: user={self.scope['user'].username}, room={self.room_name}")
+        
         # Verify user has access to this room
         if await self.has_access():
             # Join room group
@@ -24,10 +26,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
             
             await self.accept()
+            print(f"WebSocket connected: {self.scope['user'].username} to {self.room_name}")
             
             # Update user's last activity
             await self.update_user_activity()
         else:
+            print(f"Access denied for {self.scope['user'].username} to {self.room_name}")
             await self.close()
 
     async def disconnect(self, close_code):
@@ -98,16 +102,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def has_access(self):
+        """Check if user has access to the chat room"""
         try:
             room = ChatRoom.objects.get(name=self.room_name)
             return self.scope['user'] in room.participants.all()
         except ChatRoom.DoesNotExist:
             return False
-        except Exception:
+        except Exception as e:
+            print(f"Error in has_access: {e}")
             return False
         
     @database_sync_to_async
     def save_message(self, message_text):
+        """Save message to database"""
         try:
             room = ChatRoom.objects.get(name=self.room_name)
             message = ChatMessage.objects.create(
@@ -130,6 +137,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
     @database_sync_to_async
     def update_user_activity(self):
+        """Update user's last activity timestamp"""
         try:
             profile, created = UserProfile.objects.get_or_create(user=self.scope['user'])
             profile.last_activity = timezone.now()

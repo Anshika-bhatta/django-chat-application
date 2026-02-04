@@ -1,0 +1,19 @@
+<!-- chatbot/templates/chatbot/test_static.html -->
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Static</title>
+</head>
+<body>
+    <h1>Testing Static Files</h1>
+    <p>CSS: {% static 'chatbot/css/style.css' %}</p>
+    <p>JS: {% static 'chatbot/js/utils.js' %}</p>
+    
+    <script src="{% static 'chatbot/js/utils.js' %}"></script>
+    <script>
+        console.log("Static test loaded");
+        alert("Static files test - check console");
+    </script>
+</body>
+</html>

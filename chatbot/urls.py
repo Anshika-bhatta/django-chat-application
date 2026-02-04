@@ -23,8 +23,10 @@ urlpatterns = [
     path('api/toggle-theme/', views.toggle_theme, name='toggle_theme'),
     path('api/typing/<str:room_name>/', views.typing_indicator, name='typing_indicator'),
     path('api/search-users/', views.search_users, name='search_users'),
+    path('test-static/', views.test_static, name='test_static'), 
+    
 ]
 
-# Serve media files in development
 if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

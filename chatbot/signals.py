@@ -7,8 +7,14 @@ from .models import UserProfile
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.get_or_create(user=instance)
-
+        
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     if hasattr(instance, 'userprofile'):
         instance.userprofile.save()
+        
+    try:
+        instance.userprofile.save()
+    except UserProfile.DoesNotExist:
+        # Create UserProfile if it doesn't exist
+        UserProfile.objects.create(user=instance)

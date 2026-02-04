@@ -12,8 +12,10 @@ from django.db.models import Q
 import json
 import os
 from datetime import datetime
-
 from .models import ChatRoom, ChatMessage, UserProfile, Friendship
+from django.template import loader
+from django.http import HttpResponse
+
 
 def register(request):
     if request.method == 'POST':
@@ -102,7 +104,11 @@ def add_friend(request, username):
     if request.method == 'POST':
         friend_user = get_object_or_404(User, username=username)
         user_profile = UserProfile.objects.get(user=request.user)
-        friend_profile = UserProfile.objects.get(user=friend_user)
+        
+        try:
+            friend_profile = UserProfile.objects.get(user=friend_user)
+        except UserProfile.DoesNotExist:
+            friend_profile = UserProfile.objects.create(user=friend_user)
         
         # Check if friendship already exists in either direction
         existing_friendship = Friendship.objects.filter(
@@ -410,3 +416,8 @@ def search_users(request):
         return JsonResponse({'users': users_data})
     except Exception as e:
         return JsonResponse({'users': [], 'error': str(e)})
+    
+    
+def test_static(request):
+    template = loader.get_template('chatbot/test_static.html')
+    return HttpResponse(template.render({}, request))
